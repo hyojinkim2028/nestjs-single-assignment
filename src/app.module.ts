@@ -3,11 +3,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './apis/users/users.module';
 import { AuthModule } from './apis/auth/auth.module';
+import { MoviesModule } from './apis/movies/movies.module';
 
 @Module({
     imports: [
         AuthModule,
         UsersModule,
+        MoviesModule,
         ConfigModule.forRoot(), // 환경변수 사용
         TypeOrmModule.forRoot({
             type: process.env.DATABASE_TYPE as 'mysql',

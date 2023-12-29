@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { User } from 'src/apis/users/entities/user.entity';
+import { IAuthUser } from 'src/apis/users/interfaces/users-controller.interface';
 
 export interface IAuthServiceLogin {
     email: string;
@@ -13,5 +14,9 @@ export interface IAuthServiceSetRefreshToken {
 }
 
 export interface IAuthServiceGetAccessToken {
-    user: User;
+    user: User | IAuthUser['user'];
+}
+
+export interface IAuthServiceRestoreAccessToken {
+    user: IAuthUser['user'];
 }

@@ -1,5 +1,5 @@
 export interface IAuthUser {
     user?: {
-        id: string;
+        id: number;
     };
 }

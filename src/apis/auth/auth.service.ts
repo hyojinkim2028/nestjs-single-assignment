@@ -2,6 +2,7 @@ import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import {
     IAuthServiceGetAccessToken,
     IAuthServiceLogin,
+    IAuthServiceRestoreAccessToken,
     IAuthServiceSetRefreshToken,
 } from './interfaces/auth-service.interface';
 import { UsersService } from '../users/users.service';
@@ -39,6 +40,10 @@ export class AuthService {
         return this.getAccessToken({ user });
     }
 
+    restoreAccessToken({ user }: IAuthServiceRestoreAccessToken): string {
+        return this.getAccessToken({ user });
+    }
+
     // 리프레시토큰 만들어주는 함수
     setRefreshToken({ user, res }: IAuthServiceSetRefreshToken): void {
         // 리프레시토큰 생성
@@ -47,18 +52,21 @@ export class AuthService {
             { secret: process.env.REFRESH_SECRET_KEY, expiresIn: '2w' },
         );
 
-        res.cookie('set-Cookie', refreshToken, {
-            domain: 'localhost',
-            path: '/',
-            httpOnly: true,
-        });
+        // res.cookie('set-Cookie', refreshToken, {
+        //     domain: 'localhost',
+        //     path: '/',
+        //     httpOnly: true,
+        // });
+
+        res.setHeader('set-Cookie', `refreshToken = ${refreshToken}; path=/;`);
     }
 
     // 엑세스토큰 만들어주는 함수
     getAccessToken({ user }: IAuthServiceGetAccessToken): string {
+        console.log(user.id);
         return this.jwtService.sign(
             { sub: user.id },
-            { secret: process.env.SECRET_KEY, expiresIn: '1h' },
+            { secret: process.env.SECRET_KEY, expiresIn: '30s' },
         );
     }
 }
