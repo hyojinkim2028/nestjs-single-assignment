@@ -49,7 +49,7 @@ export class MoviesController {
 
     // 영화 삭제
     @Delete('/:movieId')
-    deleteProduct(
+    deleteMovie(
         @Param('movieId') movieId: number, //
     ): Promise<boolean> {
         return this.moviesService.delete({ movieId });

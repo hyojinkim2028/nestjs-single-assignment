@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movie } from './entities/movie.entity';
@@ -16,11 +16,7 @@ export class MoviesService {
     // 영화 전체 조회
     findAllMovies(): Promise<Movie[]> {
         return this.moviesRepository.find({
-            // relations: [
-            //     'productSaleslocation',
-            //     'productCategory',
-            //     'productTags',
-            // ],
+            relations: ['movieCategory'],
         });
     }
 
@@ -31,11 +27,7 @@ export class MoviesService {
     }: IMovieServiceFindOne): Promise<Movie | string> {
         const movie = await this.moviesRepository.findOne({
             where: { id: movieId },
-            // relations: [
-            //     'productSaleslocation',
-            //     'productCategory',
-            //     'productTags',
-            // ],
+            relations: ['movieCategory'],
         });
         if (!movie) return '존재하지 않는 영화입니다.';
         return movie;
@@ -43,8 +35,12 @@ export class MoviesService {
 
     // 영화 생성
     async create(movieData: CreateMovieDto): Promise<Movie> {
+        const { movieCategoryId, ...movie } = movieData;
         const createdMovie = this.moviesRepository.save({
-            ...movieData,
+            ...movie,
+            movieCategory: {
+                id: movieCategoryId,
+            },
         });
         return createdMovie;
     }
@@ -57,10 +53,17 @@ export class MoviesService {
         const movie = await this.moviesRepository.findOne({
             where: { id: movieId },
         });
+        if (!movie)
+            throw new UnprocessableEntityException('존재하지 않는 영화입니다');
+
+        const { movieCategoryId, ...data } = updateData;
 
         const result = this.moviesRepository.save({
             ...movie,
-            ...updateData,
+            movieCategory: {
+                id: movieCategoryId,
+            },
+            ...data,
         });
         return result;
     }

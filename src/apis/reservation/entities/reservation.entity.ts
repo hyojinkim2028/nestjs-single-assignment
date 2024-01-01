@@ -1,9 +1,13 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { MovieSeat } from 'src/apis/moviesSeats/entities/movieSeat.entity';
+import { MovieSlot } from 'src/apis/moviesSlot/entities/moviesSlot.entity';
 import { User } from 'src/apis/users/entities/user.entity';
 import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinTable,
+    ManyToMany,
     ManyToOne,
     PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -44,4 +48,13 @@ export class Reservation {
     @ManyToOne(() => User)
     @Field(() => User)
     user: User;
+
+    // N : 1 , 영화시간대 하나가 여러 개의 예매정보를 가질 수 있음
+    @ManyToOne(() => MovieSlot)
+    movieSlot: MovieSlot;
+
+    // N : M, 예약정보 여러개가 여러개의 좌석을 가질 수 있음
+    @JoinTable()
+    @ManyToMany(() => MovieSeat, (moviesSeats) => moviesSeats.reservations)
+    moviesSeats: MovieSeat[];
 }

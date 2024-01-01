@@ -15,4 +15,7 @@ export class CreateMovieDto {
 
     @IsNumber()
     readonly seats: number; //
+
+    @IsNumber()
+    readonly movieCategoryId: number; //
 }

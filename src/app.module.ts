@@ -4,12 +4,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './apis/users/users.module';
 import { AuthModule } from './apis/auth/auth.module';
 import { MoviesModule } from './apis/movies/movies.module';
+import { MoviesCategoryModule } from './apis/moviesCategories/moviesCategories.module';
+import { MoviesRoomsModule } from './apis/moviesRooms/moviesRooms.module';
 
 @Module({
     imports: [
         AuthModule,
         UsersModule,
         MoviesModule,
+        MoviesCategoryModule,
+        MoviesRoomsModule,
         ConfigModule.forRoot(), // 환경변수 사용
         TypeOrmModule.forRoot({
             type: process.env.DATABASE_TYPE as 'mysql',
@@ -20,7 +24,7 @@ import { MoviesModule } from './apis/movies/movies.module';
             database: process.env.DATABASE_DATABASE,
             entities: [__dirname + '/apis/**/*.entity.*'], // entity가 들어가 있는 모든 파일 변환(확장자를 ts로 하면 js로 변환과정에서 오류)
             synchronize: true,
-            logging: true,
+            // logging: true,
         }),
     ],
     controllers: [],

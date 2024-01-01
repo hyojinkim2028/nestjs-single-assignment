@@ -1,3 +1,4 @@
+import { MovieCategory } from 'src/apis/moviesCategories/entities/moviesCategories.entity';
 import { User } from 'src/apis/users/entities/user.entity';
 import {
     Column,
@@ -18,9 +19,9 @@ export class Movie {
     @Column()
     title: string;
 
-    // 상영시간
+    // 러닝타임
     @Column()
-    time: string;
+    runTime: string;
 
     // 상영관
     @Column()
@@ -46,4 +47,8 @@ export class Movie {
     // N : 1 , 영화 한 편이 여러 개의 예매정보를 가질 수 있음
     @ManyToOne(() => User)
     user: User;
+
+    // N : 1 , 카테고리 하나가 여러개의 영화를 가질 수 있음
+    @ManyToOne(() => MovieCategory)
+    movieCategory: MovieCategory;
 }
