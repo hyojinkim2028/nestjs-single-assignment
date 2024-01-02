@@ -16,21 +16,13 @@ export class MovieRoom {
     @Column()
     roomName: string;
 
-    // 스페셜타입 자리 행
+    // 스페셜타입 좌석 수
     @Column()
-    specialRow: number;
+    specialSeats: number;
 
-    // 스페셜타입 자리 열
+    // 스탠다드타입 좌석 수
     @Column()
-    specialCal: number;
-
-    // 스탠다드타입 자리 행
-    @Column()
-    standardRow: number;
-
-    // 스탠다드타입 자리 열
-    @Column()
-    standardCal: number;
+    standardSeats: number;
 
     @CreateDateColumn()
     createdAt: Date;

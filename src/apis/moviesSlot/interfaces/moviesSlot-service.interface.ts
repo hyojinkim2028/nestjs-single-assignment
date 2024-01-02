@@ -1,5 +1,5 @@
-export interface IMovieServiceFindOne {
-    movieId: number;
+export interface IMovieSlotServiceFindOne {
+    slotId: number;
 }
 
 export interface IMovieServiceUpdate {

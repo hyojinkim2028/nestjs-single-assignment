@@ -6,6 +6,8 @@ import { AuthModule } from './apis/auth/auth.module';
 import { MoviesModule } from './apis/movies/movies.module';
 import { MoviesCategoryModule } from './apis/moviesCategories/moviesCategories.module';
 import { MoviesRoomsModule } from './apis/moviesRooms/moviesRooms.module';
+import { MoviesSlotModule } from './apis/moviesSlot/moviesSlot.module';
+import { ReservationsModule } from './apis/reservation/reservations.module';
 
 @Module({
     imports: [
@@ -14,6 +16,8 @@ import { MoviesRoomsModule } from './apis/moviesRooms/moviesRooms.module';
         MoviesModule,
         MoviesCategoryModule,
         MoviesRoomsModule,
+        MoviesSlotModule,
+        ReservationsModule,
         ConfigModule.forRoot(), // 환경변수 사용
         TypeOrmModule.forRoot({
             type: process.env.DATABASE_TYPE as 'mysql',

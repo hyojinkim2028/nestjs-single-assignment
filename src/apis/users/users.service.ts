@@ -8,12 +8,15 @@ import {
     IUsersServiceFindOneById,
 } from './interfaces/users-service.interface';
 import * as bcrypt from 'bcrypt';
+import { Point } from '../payment/entities/point.entity';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly usersRepository: Repository<User>,
+        @InjectRepository(Point)
+        private readonly pointRepository: Repository<Point>,
     ) {}
 
     findUserById({ userId }: IUsersServiceFindOneById): Promise<User> {
@@ -44,10 +47,21 @@ export class UsersService {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        return this.usersRepository.save({
+        const createdUser = this.usersRepository.save({
             email,
             password: hashedPassword,
             nickname,
         });
+
+        const newUserId = (await createdUser).id;
+        await this.pointRepository.save({
+            user: {
+                id: newUserId,
+            },
+            plusPoint: 1000000,
+            balance: 1000000,
+        });
+
+        return createdUser;
     }
 }

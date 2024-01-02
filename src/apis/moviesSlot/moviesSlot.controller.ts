@@ -1,57 +1,57 @@
-// import {
-//     Body,
-//     Controller,
-//     Delete,
-//     Get,
-//     Param,
-//     Patch,
-//     Post,
-// } from '@nestjs/common';
-// import { MoviesService } from './movies.service';
-// import { Movie } from './entities/movie.entity';
-// import { CreateMovieDto } from './dto/create-movie.dto';
-// import { UpdateMovieDto } from './dto/update-movie.dto';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+} from '@nestjs/common';
+import { MoviesSlotService } from './moviesSlot.service';
+import { MovieSlot } from './entities/moviesSlot.entity';
+import { CreateSlotDto } from './dto/movieSlot-create.dto';
+import { UpdateSlotDto } from './dto/movieSlot-update.dto';
 
-// @Controller('movies')
-// export class MoviesController {
-//     constructor(
-//         private readonly moviesService: MoviesService, //
-//     ) {}
+@Controller('slot')
+export class MoviesSlotController {
+    constructor(
+        private readonly moviesSlotService: MoviesSlotService, //
+    ) {}
 
-//     // 영화 전체 조회
-//     @Get()
-//     getAllMovies(): Promise<Movie[]> {
-//         return this.moviesService.findAllMovies();
-//     }
+    // 영화 상영시간대 전체 조회
+    @Get()
+    getAllSlot(): Promise<MovieSlot[]> {
+        return this.moviesSlotService.findAllSlot();
+    }
 
-//     // 영화 상세 조회
-//     @Get('/:movieId')
-//     findOneById(
-//         @Param('movieId') movieId: number, //
-//     ): Promise<Movie | string> {
-//         return this.moviesService.findOneMovie({ movieId });
-//     }
+    // 영화 상영시간 상세 조회
+    @Get('/:slotId')
+    findOneById(
+        @Param('slotId') slotId: number, //
+    ): Promise<MovieSlot | string> {
+        return this.moviesSlotService.findOneSlot({ slotId });
+    }
 
-//     // 영화 생성
-//     @Post()
-//     createMovie(@Body() movieData: CreateMovieDto): Promise<Movie> {
-//         return this.moviesService.create(movieData);
-//     }
+    // 영화 상영시간 생성
+    @Post()
+    createSlot(@Body() slotData: CreateSlotDto): Promise<MovieSlot> {
+        return this.moviesSlotService.create(slotData);
+    }
 
-//     // 영화 수정
-//     @Patch('/:movieId')
-//     updateMovie(
-//         @Param('movieId') movieId: number, //
-//         @Body() updateData: UpdateMovieDto,
-//     ): Promise<Movie> {
-//         return this.moviesService.update({ movieId }, updateData);
-//     }
+    // 영화 상영시간 수정
+    @Patch('/:slotId')
+    updateSlot(
+        @Param('slotId') slotId: number, //
+        @Body() updateData: UpdateSlotDto,
+    ): Promise<MovieSlot> {
+        return this.moviesSlotService.update({ slotId }, updateData);
+    }
 
-//     // 영화 삭제
-//     @Delete('/:movieId')
-//     deleteMovie(
-//         @Param('movieId') movieId: number, //
-//     ): Promise<boolean> {
-//         return this.moviesService.delete({ movieId });
-//     }
-// }
+    // 영화 상영시간 삭제
+    @Delete('/:slotId')
+    deleteSlot(
+        @Param('slotId') slotId: number, //
+    ): Promise<boolean> {
+        return this.moviesSlotService.delete({ slotId });
+    }
+}

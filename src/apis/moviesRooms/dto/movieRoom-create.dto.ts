@@ -5,19 +5,11 @@ export class CreateRoomDto {
     @IsString()
     readonly roomName: string; //
 
-    // 스페셜타입 자리 행
+    // 스페셜타입 좌석수
     @IsNumber()
-    readonly specialRow: number; //
+    readonly specialSeats: number; //
 
-    // 스페셜타입 자리 열
+    // 스탠다드타입 좌석수
     @IsNumber()
-    readonly specialCal: number; //
-
-    // 스탠다드타입 자리 행
-    @IsNumber()
-    readonly standardRow: number; //
-
-    // 스탠다드타입 자리 열
-    @IsNumber()
-    readonly standardCal: number; //
+    readonly standardSeats: number; //
 }

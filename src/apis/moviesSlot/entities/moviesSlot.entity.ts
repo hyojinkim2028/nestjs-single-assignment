@@ -7,6 +7,7 @@ import {
     Entity,
     ManyToOne,
     PrimaryGeneratedColumn,
+    // RelationId,
     UpdateDateColumn,
 } from 'typeorm';
 
@@ -17,15 +18,15 @@ export class MovieSlot {
 
     // 상영날짜
     @Column()
-    title: string;
+    date: string;
 
     // 영화시작시간
     @Column()
-    runTime: string;
+    startTime: number;
 
     // 영화종료시간
     @Column()
-    theater: number;
+    finishTime: number;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -36,11 +37,14 @@ export class MovieSlot {
     @DeleteDateColumn()
     deletedAt: Date;
 
+    // @RelationId((movieSlot: MovieSlot) => movieSlot.movie) // you need to specify target relation
+    // movieId: number;
+
     // N : 1 , 여러 상영시간대가 하나의 영화를 가질 수 있음
-    @ManyToOne(() => Movie)
+    @ManyToOne(() => Movie, { eager: true })
     movie: Movie;
 
     // N : 1 , 여러 상영시간대가 하나의 관람관을 가질 수 있음
-    @ManyToOne(() => MovieRoom)
+    @ManyToOne(() => MovieRoom, { eager: true })
     movieRoom: MovieRoom;
 }

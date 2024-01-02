@@ -5,16 +5,10 @@ export class CreateMovieDto {
     readonly title: string; //
 
     @IsString()
-    readonly time: string; //
-
-    @IsNumber()
-    readonly theater: number; //
+    readonly runTime: number; //
 
     @IsNumber()
     readonly price: number; //
-
-    @IsNumber()
-    readonly seats: number; //
 
     @IsNumber()
     readonly movieCategoryId: number; //
