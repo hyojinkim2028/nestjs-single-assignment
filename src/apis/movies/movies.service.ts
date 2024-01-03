@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-// import { Storage } from '@google-cloud/storage';
 import { Movie } from './entities/movie.entity';
 import {
     IMovieServiceFindOne,

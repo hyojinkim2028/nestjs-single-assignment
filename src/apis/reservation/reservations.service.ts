@@ -6,10 +6,7 @@ import { CreateReservationDto } from './dto/reservation-create.dto';
 import { Reservation } from './entities/reservation.entity';
 import { MoviesSeatsService } from '../moviesSeats/movieSeat.service';
 import { MovieSlot } from '../moviesSlot/entities/moviesSlot.entity';
-import {
-    IFindAllReservationsService,
-    // IFindOneReservationsService,
-} from './interfaces/reservations-service.interface';
+import { IFindAllReservationsService } from './interfaces/reservations-service.interface';
 
 @Injectable()
 export class ReservationsService {
@@ -43,18 +40,6 @@ export class ReservationsService {
         return reservations;
     }
 
-    // // 본인 예매 아이디별 상세 조회
-    // async findOneMyReservation({
-    //     reservationId,
-    // }: IFindOneReservationsService): Promise<Reservation | string> {
-    //     const movie = await this.reservaionsRepository.findOne({
-    //         where: { id: reservationId },
-    //         relations: ['movieSlot', 'moviesSeats'],
-    //     });
-    //     if (!movie) return '존재하지 않는 예약입니다.';
-    //     return movie;
-    // }
-
     // 예약 생성
     async create(
         reservationData: CreateReservationDto,
@@ -68,12 +53,6 @@ export class ReservationsService {
         await queryRunner.startTransaction();
 
         try {
-            // // 상영시간대(영화) 선택
-            // const movie = await queryRunner.manager.findOne(MovieSlot, {
-            //     where: { id: movieSlotId },
-            //     relations: ['movie'],
-            // });
-
             // 영화 가격 추출
             let moviePrice = 0;
             seatTypes === 'standard'
@@ -88,6 +67,12 @@ export class ReservationsService {
             moviesSeats.forEach((el) => {
                 temp.push({ seatNumber: el });
             });
+
+            // 좌석을 선택하면 해당 좌석번호가 좌석테이블에 저장됨( 예약테이블 : 좌석테이블 = N : M )
+            // 프론트에서 테이블에 저장되어있는 좌석번호에 대해 유저가 선택하지 못하도록 비활성화 처리
+            // 예를들어 자리가 1~100 까지 있는데 1,2,3 번 자리가 예약되었다면 회색으로 표시를해서 클릭 비활성화되게 함.
+
+            // 디테일하게 백엔드에서도 함께 처리하고 싶었지만 시간문제로 하지 못했습니다.
 
             const newSeats = await this.seatsService.bulkInsert({
                 names: temp,
@@ -140,7 +125,7 @@ export class ReservationsService {
         }
     }
 
-    // // 예매 취소
+    // // 예매 취소 -> 구현 보류
     // async delete({ movieId }: IMovieServiceFindOne): Promise<boolean> {
     //     const result = await this.reservaionsRepository.softDelete({
     //         id: movieId,

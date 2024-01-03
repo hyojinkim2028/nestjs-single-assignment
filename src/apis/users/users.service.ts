@@ -50,6 +50,7 @@ export class UsersService {
         return this.usersRepository.findOne({ where: { email } });
     }
 
+    // 회원가입
     async create({
         email,
         password,
@@ -68,6 +69,7 @@ export class UsersService {
         });
 
         const newUserId = (await createdUser).id;
+        // 회원가입시 포인트 100만 자동 적립
         await this.pointRepository.save({
             user: {
                 id: newUserId,

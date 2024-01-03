@@ -30,13 +30,6 @@ export class AuthService {
         // 리프레시토큰 만들어 브라우저 쿠키에 저장해 보내줌
         this.setRefreshToken({ user, res });
 
-        // // 배포환경
-        // response.setHeader(
-        //     'set-Cookie',
-        //     `refreshToken = ${refreshToken}; path=/; domain=.사이트이름.com; SameSite=None; Secure; httpOnly`,
-        // );
-        // response.setHeader('Access-Control-Allow-Origin', 'https://사이트이름.com')
-
         return this.getAccessToken({ user });
     }
 
@@ -52,11 +45,11 @@ export class AuthService {
             { secret: process.env.REFRESH_SECRET_KEY, expiresIn: '2w' },
         );
 
-        // res.cookie('set-Cookie', refreshToken, {
-        //     domain: 'localhost',
-        //     path: '/',
-        //     httpOnly: true,
-        // });
+        res.cookie('set-Cookie', refreshToken, {
+            domain: 'localhost',
+            path: '/',
+            httpOnly: true,
+        });
 
         res.setHeader('set-Cookie', `refreshToken = ${refreshToken}; path=/;`);
     }

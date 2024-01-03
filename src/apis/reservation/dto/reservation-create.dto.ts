@@ -18,12 +18,7 @@ export class CreateReservationDto {
     @IsNumber()
     readonly movieSlotId: number; //
 
-    // @Min(0, { message: 'quantity must be a positive number' })
-    // @IsNumber()
     readonly quantity: number; //
 
-    // @Type(() => Number)
-    // @Min(0, { message: 'totalAmount must be a positive number' })
-    // @IsNumber()
     readonly totalAmount: number; //
 }

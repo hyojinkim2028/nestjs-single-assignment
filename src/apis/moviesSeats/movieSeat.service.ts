@@ -10,9 +10,6 @@ export class MoviesSeatsService {
         @InjectRepository(MovieSeat)
         private readonly seatsRepository: Repository<MovieSeat>,
     ) {}
-    // findBySeatNumber() {
-
-    // }
 
     bulkInsert({ names }: ISeatsServiceBulkInsert) {
         return this.seatsRepository.insert(names);

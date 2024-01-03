@@ -7,7 +7,6 @@ import {
     Entity,
     ManyToOne,
     PrimaryGeneratedColumn,
-    // RelationId,
     UpdateDateColumn,
 } from 'typeorm';
 
