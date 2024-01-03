@@ -63,10 +63,9 @@ export class AuthService {
 
     // 엑세스토큰 만들어주는 함수
     getAccessToken({ user }: IAuthServiceGetAccessToken): string {
-        console.log(user.id);
         return this.jwtService.sign(
             { sub: user.id },
-            { secret: process.env.SECRET_KEY, expiresIn: '30s' },
+            { secret: process.env.SECRET_KEY, expiresIn: '1h' },
         );
     }
 }

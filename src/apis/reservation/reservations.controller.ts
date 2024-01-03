@@ -39,23 +39,18 @@ export class ReservationsController {
     // }
 
     // 예약 생성
+    @UseGuards(AuthGuard('access'))
     @Post()
     createReservation(
+        @Req() req: IAuthUser,
         @Body() reservationData: CreateReservationDto,
     ): Promise<Reservation> {
-        return this.reservationsService.create(reservationData);
+        const userId = Number(req.user.id);
+
+        return this.reservationsService.create(reservationData, userId);
     }
 
-    // // 영화 수정
-    // @Patch('/:movieId')
-    // updateMovie(
-    //     @Param('movieId') movieId: number, //
-    //     @Body() updateData: UpdateMovieDto,
-    // ): Promise<Movie> {
-    //     return this.moviesService.update({ movieId }, updateData);
-    // }
-
-    // // 영화 삭제
+    // // 예약 취소
     // @Delete('/:movieId')
     // deleteMovie(
     //     @Param('movieId') movieId: number, //

@@ -10,7 +10,8 @@ export class UsersController {
 
     @UseGuards(AuthGuard('access'))
     @Get()
-    getUserInfo(@Req() req: IAuthUser): Promise<User> {
+    getUserInfo(@Req() req: IAuthUser): Promise<[User, number]> {
+        // getUserInfo(@Req() req: IAuthUser): Promise<Point> {
         const userId = Number(req.user.id);
         return this.usersService.findUserById({ userId });
     }

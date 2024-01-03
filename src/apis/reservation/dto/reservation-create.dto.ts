@@ -2,9 +2,9 @@ import { IsArray, IsNumber, IsString } from 'class-validator';
 import { Seat } from '../entities/reservation.entity';
 
 export class CreateReservationDto {
-    // 유저정보
-    @IsNumber()
-    readonly userId: number; //
+    // // 유저정보
+    // @IsNumber()
+    // readonly userId: number; //
 
     // 좌석타입
     @IsString()

@@ -28,7 +28,7 @@ import { ReservationsModule } from './apis/reservation/reservations.module';
             database: process.env.DATABASE_DATABASE,
             entities: [__dirname + '/apis/**/*.entity.*'], // entity가 들어가 있는 모든 파일 변환(확장자를 ts로 하면 js로 변환과정에서 오류)
             synchronize: true,
-            // logging: true,
+            logging: true,
         }),
     ],
     controllers: [],

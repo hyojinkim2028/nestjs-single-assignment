@@ -14,6 +14,10 @@ export class Movie {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
+    // 영화이미지
+    @Column()
+    image: string;
+
     // 영화제목
     @Column()
     title: string;
@@ -21,10 +25,6 @@ export class Movie {
     // 러닝타임
     @Column()
     runTime: number;
-
-    // 티켓 가격
-    @Column()
-    price: number;
 
     @CreateDateColumn()
     createdAt: Date;

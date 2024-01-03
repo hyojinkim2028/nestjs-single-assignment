@@ -2,10 +2,10 @@ export interface IMovieServiceFindOne {
     movieId: number;
 }
 
-export interface IMovieServiceUpdate {
-    title?: string;
-    time?: string;
-    theater?: number;
-    price?: number;
-    seats?: number;
+export interface IMovieServiceUserId {
+    userId: number;
+}
+
+export interface IMovieServiceFindOneByName {
+    keyword: string;
 }

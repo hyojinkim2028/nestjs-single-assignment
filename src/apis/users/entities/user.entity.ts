@@ -1,40 +1,38 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Point } from 'src/apis/payment/entities/point.entity';
 import {
     Column,
     CreateDateColumn,
     Entity,
+    OneToMany,
     PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@ObjectType()
 @Entity()
 export class User {
     @PrimaryGeneratedColumn('increment')
-    @Field(() => Int)
     id: number;
 
     // 이메일
     @Column()
-    @Field(() => String)
     email: string;
 
     // 비밀번호
     @Column()
-    // 비밀번호는 브라우저에 전달하지 않음.
     password: string;
 
     // 닉네임
     @Column()
-    @Field(() => String)
     nickname: string;
 
     // 관리자여부 : 일반유저 false, 관리자 true
     @Column({ default: false })
-    @Field(() => Boolean)
     role: boolean;
 
     // 회원가입일
     @CreateDateColumn()
-    @Field(() => Date)
     createdAt: Date;
+
+    // 1:N, 유저 한 명이 여러 개의 포인트아이디를 가질 수 있음
+    @OneToMany(() => Point, (point) => point.user)
+    point: Point[];
 }

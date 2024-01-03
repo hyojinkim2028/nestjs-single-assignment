@@ -1,5 +1,6 @@
+import { Point } from './../payment/entities/point.entity';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateReservationDto } from './dto/reservation-create.dto';
 import { Reservation } from './entities/reservation.entity';
@@ -20,6 +21,11 @@ export class ReservationsService {
 
         @InjectRepository(MovieSlot)
         private readonly moviesSlotRepository: Repository<MovieSlot>, //
+
+        @InjectRepository(Point)
+        private readonly pointRepository: Repository<Point>,
+
+        private readonly dataSource: DataSource,
     ) {}
 
     // 본인 예매 전체 상세 조회
@@ -50,71 +56,89 @@ export class ReservationsService {
     // }
 
     // 예약 생성
-    async create(reservationData: CreateReservationDto): Promise<Reservation> {
-        const { userId, movieSlotId, moviesSeats, seatTypes } = reservationData;
+    async create(
+        reservationData: CreateReservationDto,
+        userId: number,
+    ): Promise<Reservation> {
+        const { movieSlotId, moviesSeats, seatTypes } = reservationData;
 
-        const movie = await this.moviesSlotRepository.findOne({
-            where: { id: movieSlotId },
-            relations: ['movie'],
-        });
+        // 트랜젝션 시작
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
 
-        let moviePrice = Number(movie.movie.price);
-        seatTypes === 'standard'
-            ? (moviePrice = moviePrice)
-            : (moviePrice = moviePrice + 5000);
+        try {
+            // // 상영시간대(영화) 선택
+            // const movie = await queryRunner.manager.findOne(MovieSlot, {
+            //     where: { id: movieSlotId },
+            //     relations: ['movie'],
+            // });
 
-        const quantity = Number(moviesSeats.length);
-        const totalAmount = quantity * moviePrice;
+            // 영화 가격 추출
+            let moviePrice = 0;
+            seatTypes === 'standard'
+                ? (moviePrice = 20000)
+                : (moviePrice = 25000);
 
-        // const prevReservation = await this.reservaionsRepository.find({
-        //     where: { id: movieSlotId },
-        // });
+            const quantity = Number(moviesSeats.length);
+            const totalAmount = quantity * moviePrice;
 
-        const temp = [];
-        moviesSeats.forEach((el) => {
-            temp.push({ seatNumber: el });
-        });
+            // 좌석 배열을 임시 배열에 넣고 좌석 테이블에 데이터 저장
+            const temp = [];
+            moviesSeats.forEach((el) => {
+                temp.push({ seatNumber: el });
+            });
 
-        const newSeats = await this.seatsService.bulkInsert({ names: temp });
-        const seats = [...newSeats.identifiers];
+            const newSeats = await this.seatsService.bulkInsert({
+                names: temp,
+            });
+            const seats = [...newSeats.identifiers];
 
-        // 일치하지 않는 경우 예약 가능
-        const createdReservation = await this.reservaionsRepository.save({
-            user: {
-                id: userId,
-            },
-            seatTypes,
-            movieSlot: {
-                id: movieSlotId,
-            },
-            moviesSeats: seats,
-            quantity,
-            totalAmount,
-        });
-        return createdReservation;
+            // 해당 유저의 기존 잔여 포인트 조회
+            const existPoint = await queryRunner.manager.findOne(Point, {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+                order: { createdAt: 'DESC' },
+                relations: ['user'],
+            });
+
+            // 영화 결제 -> 티켓가격만큼 차감 후 나머지 포인트 계산되어 포인트 테이블에 저장됨
+            const updatedPoint = await this.pointRepository.create({
+                user: {
+                    id: userId,
+                },
+                minusPoint: totalAmount,
+                balance: existPoint.balance - totalAmount,
+            });
+
+            await queryRunner.manager.save(updatedPoint);
+
+            // 새로운 예약 로우 생성
+            const createdReservation = await this.reservaionsRepository.create({
+                user: {
+                    id: userId,
+                },
+                seatTypes,
+                movieSlot: {
+                    id: movieSlotId,
+                },
+                moviesSeats: seats,
+                quantity,
+                totalAmount,
+            });
+            await queryRunner.manager.save(createdReservation);
+            await queryRunner.commitTransaction();
+
+            return createdReservation;
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
     }
-    // // 예매 수정
-    // async update(
-    //     { movieId }: IMovieServiceFindOne,
-    //     updateData: UpdateMovieDto,
-    // ): Promise<Movie> {
-    //     const movie = await this.reservaionsRepository.findOne({
-    //         where: { id: movieId },
-    //     });
-    //     if (!movie)
-    //         throw new UnprocessableEntityException('존재하지 않는 영화입니다');
-
-    //     const { movieCategoryId, ...data } = updateData;
-
-    //     const result = this.reservaionsRepository.save({
-    //         ...movie,
-    //         movieCategory: {
-    //             id: movieCategoryId,
-    //         },
-    //         ...data,
-    //     });
-    //     return result;
-    // }
 
     // // 예매 취소
     // async delete({ movieId }: IMovieServiceFindOne): Promise<boolean> {

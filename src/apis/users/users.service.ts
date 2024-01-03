@@ -19,18 +19,32 @@ export class UsersService {
         private readonly pointRepository: Repository<Point>,
     ) {}
 
-    findUserById({ userId }: IUsersServiceFindOneById): Promise<User> {
-        const user = this.usersRepository.findOne({
-            where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                nickname: true,
-                createdAt: true,
-            },
-        });
-        return user;
+    // 유저정보, 잔여포인트 조회
+    async findUserById({
+        userId,
+    }: IUsersServiceFindOneById): Promise<[User, number]> {
+        const [user, point] = await Promise.all([
+            this.usersRepository.findOne({
+                where: { id: userId },
+                select: {
+                    id: true,
+                    email: true,
+                    nickname: true,
+                    createdAt: true,
+                },
+            }),
+            this.pointRepository
+                .createQueryBuilder('point')
+                .leftJoin('point.user', 'user')
+                .where('user.id = :userId', { userId })
+                .orderBy('point.createdAt', 'DESC') // 최신순 정렬
+                .limit(1) // 최신 값 하나만 가져오기
+                .getOne(),
+        ]);
+
+        return [user, point.balance];
     }
+    // const balance = withPoint[0].balance;
 
     findOneByEmail({ email }: IUsersServiceFindOneByEmail): Promise<User> {
         return this.usersRepository.findOne({ where: { email } });
