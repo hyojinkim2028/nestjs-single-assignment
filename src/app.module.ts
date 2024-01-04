@@ -8,7 +8,7 @@ import { MoviesCategoryModule } from './apis/moviesCategories/moviesCategories.m
 import { MoviesRoomsModule } from './apis/moviesRooms/moviesRooms.module';
 import { MoviesSlotModule } from './apis/moviesSlot/moviesSlot.module';
 import { ReservationsModule } from './apis/reservation/reservations.module';
-import Joi from 'joi';
+// import Joi from 'joi';
 
 @Module({
     imports: [
@@ -20,10 +20,10 @@ import Joi from 'joi';
         MoviesSlotModule,
         ReservationsModule,
         ConfigModule.forRoot({
-            isGlobal: true,
-            validationSchema: Joi.object({
-                SERVER_PORT: Joi.number().required,
-            }),
+            // isGlobal: true,
+            // validationSchema: Joi.object({
+            //     SERVER_PORT: Joi.number().required,
+            // }),
         }), // 환경변수 사용
         TypeOrmModule.forRoot({
             type: process.env.DATABASE_TYPE as 'mysql',

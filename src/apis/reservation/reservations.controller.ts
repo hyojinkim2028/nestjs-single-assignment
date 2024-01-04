@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Req,
+    UseGuards,
+} from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/reservation-create.dto';
 import { Reservation } from './entities/reservation.entity';
@@ -31,11 +40,14 @@ export class ReservationsController {
         return this.reservationsService.create(reservationData, userId);
     }
 
-    // // 예약 취소 -> 구현 보류
-    // @Delete('/:movieId')
-    // deleteMovie(
-    //     @Param('movieId') movieId: number, //
-    // ): Promise<boolean> {
-    //     return this.moviesService.delete({ movieId });
-    // }
+    // 예약 취소 -> 구현 보류
+    @UseGuards(AuthGuard('access'))
+    @Delete('/:reservationId')
+    deleteReservation(
+        @Req() req: IAuthUser,
+        @Param('reservationId') reservationId: number,
+    ): Promise<string> {
+        const userId = Number(req.user.id);
+        return this.reservationsService.delete(userId, { reservationId });
+    }
 }

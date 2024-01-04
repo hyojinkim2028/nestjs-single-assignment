@@ -1,12 +1,16 @@
+import { MovieSlot } from './../moviesSlot/entities/moviesSlot.entity';
 import { Point } from './../payment/entities/point.entity';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateReservationDto } from './dto/reservation-create.dto';
 import { Reservation } from './entities/reservation.entity';
 import { MoviesSeatsService } from '../moviesSeats/movieSeat.service';
-import { MovieSlot } from '../moviesSlot/entities/moviesSlot.entity';
-import { IFindAllReservationsService } from './interfaces/reservations-service.interface';
+import {
+    IFindAllReservationsService,
+    IFindOneReservationsService,
+} from './interfaces/reservations-service.interface';
+import { MovieSeat } from '../moviesSeats/entities/movieSeat.entity';
 
 @Injectable()
 export class ReservationsService {
@@ -21,6 +25,9 @@ export class ReservationsService {
 
         @InjectRepository(Point)
         private readonly pointRepository: Repository<Point>,
+
+        @InjectRepository(MovieSeat)
+        private readonly moviesSeatsRepository: Repository<MovieSeat>,
 
         private readonly dataSource: DataSource,
     ) {}
@@ -53,6 +60,20 @@ export class ReservationsService {
         await queryRunner.startTransaction();
 
         try {
+            const movieRoomSeats = await queryRunner.manager.findOne(
+                MovieSlot,
+                {
+                    where: { id: movieSlotId },
+                    relations: ['movieRoom'],
+                },
+            );
+
+            // seatType에 따른 에약 가능한 좌석갯수(번호)를 가져옴
+            let movieSeatsNum = 0;
+            if (seatTypes === 'standard') {
+                movieSeatsNum = movieRoomSeats.movieRoom.standardSeats;
+            } else movieSeatsNum = movieRoomSeats.movieRoom.specialSeats;
+
             // 영화 가격 추출
             let moviePrice = 0;
             seatTypes === 'standard'
@@ -65,6 +86,11 @@ export class ReservationsService {
             // 좌석 배열을 임시 배열에 넣고 좌석 테이블에 데이터 저장
             const temp = [];
             moviesSeats.forEach((el) => {
+                // 예약하려는 좌석이 존재하지 않는 좌석인 경우
+                if (el > movieSeatsNum || el < 1)
+                    throw new BadRequestException(
+                        '불가능한 좌석을 요청했습니다.',
+                    );
                 temp.push({ seatNumber: el });
             });
 
@@ -125,11 +151,74 @@ export class ReservationsService {
         }
     }
 
-    // // 예매 취소 -> 구현 보류
-    // async delete({ movieId }: IMovieServiceFindOne): Promise<boolean> {
-    //     const result = await this.reservaionsRepository.softDelete({
-    //         id: movieId,
-    //     });
-    //     return result.affected ? true : false;
-    // }
+    // 예매 취소
+    async delete(
+        userId: number,
+        { reservationId }: IFindOneReservationsService,
+    ): Promise<string> {
+        // 트랜젝션 시작
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        try {
+            // 해당하는 예약 내역 확인
+            const findReservation = await queryRunner.manager.findOne(
+                Reservation,
+                {
+                    where: { id: reservationId },
+                    relations: ['movieSlot', 'moviesSeats'],
+                },
+            );
+
+            // 예약된 좌석 확인
+            const seatsId = findReservation.moviesSeats;
+
+            seatsId.forEach(async (seat) => {
+                const seatEntity = await queryRunner.manager.findOne(
+                    MovieSeat,
+                    {
+                        where: { id: Number(seat.id) },
+                    },
+                );
+
+                // 확인된 좌석 좌석테이블에서 삭제
+                if (seatEntity) {
+                    await queryRunner.manager.remove(MovieSeat, seatEntity);
+                }
+            });
+
+            // 해당 유저의 기존 잔여 포인트 조회
+            const existPoint = await queryRunner.manager.findOne(Point, {
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                },
+                order: { createdAt: 'DESC' },
+                relations: ['user'],
+            });
+
+            // 결제취소 및 포인트 환불 -> 티켓가격만큼 환불되어 포인트 테이블에 저장됨
+            const updatedPoint = await this.pointRepository.create({
+                user: {
+                    id: userId,
+                },
+                plusPoint: findReservation.totalAmount,
+                balance: existPoint.balance + findReservation.totalAmount,
+            });
+
+            await queryRunner.manager.save(updatedPoint);
+
+            await queryRunner.manager.remove(findReservation);
+
+            await queryRunner.commitTransaction();
+
+            return '삭제완료';
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
+    }
 }
