@@ -9,7 +9,6 @@ import {
 } from './interfaces/movies-service.interface';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { MovieImage } from '../moviesImages/entities/movieImage.entity';
 import { User } from '../users/entities/user.entity';
 
 @Injectable()
@@ -17,9 +16,6 @@ export class MoviesService {
     constructor(
         @InjectRepository(Movie)
         private readonly moviesRepository: Repository<Movie>, //
-
-        @InjectRepository(MovieImage)
-        private readonly MoviesImagesRepository: Repository<MovieImage>, //
 
         @InjectRepository(User)
         private readonly usersRepository: Repository<User>, //
